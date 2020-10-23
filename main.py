@@ -4,7 +4,7 @@ from discord.ext import commands
 import asyncio
 
 bot = commands.Bot(command_prefix = "!", description = "organise des combats") 
-token = "NzQwNTAyOTUyNDA1NDk5OTA1.Xyp9HQ.6lGwmGdX0ZECfGcKga_R15fO1Nw"
+token = str(os.environ.get('BOT_TOKEN'))
 bot.remove_command('help')
 @bot.event
 async def on_ready():

@@ -43,14 +43,8 @@ async def start(ctx):
 
     # Réaction role si le joueur a répondu Oui pour qu'il le ramène a un channel spécifique
     if reac == True: 
-        #messag = await ctx.send("**Super, coche la réaction ci-dessous pour que tu puisses créer ton personnage !**\n**Bonne Chance Jeune Héros !!! et n'hésite pas à demander des indications aux staff si tu as besoin d'aide :thumbsup:**")
         emoji = '📩'
         await message.add_reaction(emoji)
-        #async def on_reaction_add(reaction, user):
-          #  if reaction.emoji.name == 'envelope_with_arrow' and user == ctx.author_id and message.content == "**Super, coche la réaction ci-dessous pour que tu puisses créer ton personnage !**\n**Bonne Chance Jeune Héros !!! et n'hésite pas à demander des indications aux staff si tu as besoin d'aide :thumbsup:**" :
-          #      roles = ["746717186285895791"]
-           #     role = discord.utils.get(message.server.roles, name=team)
-           #     await bot.add_roles(user, role)
     else:
         pass
             
@@ -88,7 +82,7 @@ async def unban(ctx, user):
 			await ctx.guild.unban(i.user)
 			await ctx.send(f"{user} à été unban.")
 			return
-	#Ici on sait que lutilisateur na pas ete trouvé
+	#Ici on sait que l'utilisateur na pas ete trouvé
 	await ctx.send(f"L'utilisateur {user} n'est pas dans la liste des bans")
 
 @bot.command()                                                                                                          #CLEAR

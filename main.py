@@ -1,13 +1,21 @@
 import discord
 from discord.ext import commands
-
+import sqlite3
 import asyncio
 
 bot = commands.Bot(command_prefix = "!", description = "organise des combats") 
 token = "NzQwNTAyOTUyNDA1NDk5OTA1.Xyp9HQ.6lGwmGdX0ZECfGcKga_R15fO1Nw"
 bot.remove_command('help')
+
 @bot.event
 async def on_ready():
+    db = sqlite3.connect('main.sqlite')
+    cursor = db.cursor()
+    cursor.execute('''
+    
+
+    
+    ''')
     print("Bot connecté")
 
 @bot.command()

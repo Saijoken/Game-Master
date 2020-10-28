@@ -47,13 +47,6 @@ async def start(ctx):
         await message.add_reaction(emoji)
     else:
         pass
-            
-            
-
-                #roles = ["746717186285895791"]
-    #role = discord.utils.get(message.server.roles, name=team)
-    #try:
-        #await client.add_roles(Member.name, role)
 
 @bot.command()                                                                                                          #SAY
 async def say(ctx, *, arg):

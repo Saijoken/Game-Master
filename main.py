@@ -50,12 +50,18 @@ async def start(ctx):
             await ctx.send("**Tu mets pas mal de temps ..., reviens une fois que tu te seras décidé **")
             return
 
-    # Réaction role si le joueur a répondu Oui pour qu'il le ramène a un channel spécifique
     if reac == True: 
         emoji = '📩'
         await message.add_reaction(emoji)
+        global m
+        m = message
     else:
         pass
+
+# Réaction role si le joueur a répondu Oui pour qu'il le ramène a un channel spécifique
+async def on_reaction_add(reaction,message):
+    if reaction == '📩' and message == m :
+        await reaction.send("Ok c'est nice tt ca")
 
 @bot.command()                                                                                                          #SAY
 async def say(ctx, *, arg):

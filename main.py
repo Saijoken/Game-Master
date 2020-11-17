@@ -3,7 +3,10 @@ import discord
 from discord.ext import commands
 import sqlite3
 import asyncio
+import json
+import random
 
+os.chdir("C:\\Users\\mohbe\\Desktop\\Code Python\\Game-Master")
 bot = commands.Bot(command_prefix = "!", description = "organise des combats") 
 token = str(os.environ.get('BOT_TOKEN'))
 bot.remove_command('help')
@@ -19,6 +22,8 @@ async def on_ready():
     ''')
     print("Bot connecté")
 
+#COMMANDES Changement de prefixe ECLATAX CAR PAS TERMINE ET MARCHE PAS
+
 @bot.command()
 async def prefix(ctx, arg):
     if ctx.message.author.guild_permissions.administrator:
@@ -26,6 +31,8 @@ async def prefix(ctx, arg):
         await ctx.send("Tu viens de changé le préfixe pour "+ arg)
     else:
         await ctx.send("**:x: Cette commande est réservé aux administrateurs**")
+
+#COMMANDES START #COMMANDES START #COMMANDES START #COMMANDES START #COMMANDES START #COMMANDES START #COMMANDES START #COMMANDES START #COMMANDES START #COMMANDES START
 
 @bot.command()
 async def start(ctx):
@@ -68,6 +75,8 @@ async def say(ctx, *, arg):
     await ctx.message.delete()
     await ctx.send(arg)
 
+#COMMANDES DE MODERATIONS #COMMANDES DE MODERATIONS #COMMANDES DE MODERATIONS #COMMANDES DE MODERATIONS #COMMANDES DE MODERATIONS #COMMANDES DE MODERATIONS #COMMANDES DE MODERATIONS
+
 @bot.command()                                                                                                          #KICK
 async def kick(ctx, user : discord.User, *reason):
     if ctx.message.author.guild_permissions.administrator:
@@ -99,10 +108,53 @@ async def clear(ctx, nombre : int):
     for message in messages:
         await message.delete()
 
+#COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM
+
+@bot.command()
+async def open_account(user):
+    users = await get_bank_data()
+
+    if str(user.id) in users:
+        return False
+    else:
+        users[str(user.id)] = {}
+        users[str(user.id)]["monnaie"] = 0
+        users[str(user.id)]["banque"] = 0
+
+    with open("mainbank.json", "w") as f:
+        json.dump(users,f)
+    return True
+
+@bot.command()
+async def money(ctx):
+    user = ctx.author
+    await open_account(ctx.author)
+    users = await get_bank_data()
+
+    porte_monnaie = users[str(user.id)]["monnaie"]
+    banque_argent = users[str(user.id)]["banque"]
+
+    em = discord.Embed(title = f"Argent de {ctx.author.name}", color = discord.Color.green())
+    em.add_field(name = "Porte Monnaie", value = porte_monnaie)
+    em.add_field(name = "Compte en Banque", value = banque_argent)
+
+    await ctx.send(embed = em)
+
+@bot.command()
+async def get_bank_data():
+    with open("mainbank.json", "r") as f:
+        users = json.load(f)
+
+    return users
+
+#COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT 
+
 @bot.command()                                                                                                          #FIGHT
 @commands.cooldown(1, 10, commands.BucketType.user)
 async def fight (ctx, adversaire: discord.User):
     await ctx.send(adversaire.mention)
+
+#COMMANDES HELP #COMMANDES HELP #COMMANDES HELP #COMMANDES HELP #COMMANDES HELP #COMMANDES HELP #COMMANDES HELP #COMMANDES HELP #COMMANDES HELP #COMMANDES HELP 
 
 @bot.command()
 async def help (ctx):

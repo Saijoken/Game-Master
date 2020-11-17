@@ -1,7 +1,6 @@
 import os
 import discord
 from discord.ext import commands
-import sqlite3
 import asyncio
 import json
 import random
@@ -13,13 +12,6 @@ bot.remove_command('help')
 
 @bot.event
 async def on_ready():
-    db = sqlite3.connect('main.sqlite')
-    cursor = db.cursor()
-    cursor.execute('''
-    
-
-    
-    ''')
     print("Bot connecté")
 
 #COMMANDES Changement de prefixe ECLATAX CAR PAS TERMINE ET MARCHE PAS

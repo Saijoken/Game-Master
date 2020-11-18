@@ -106,6 +106,7 @@ async def open_account(user):
     users = await get_bank_data()
 
     if str(user.id) in users:
+        await user.send("Votre compte a déjà été créé !")
         return False
     else:
         users[str(user.id)] = {}
@@ -114,6 +115,7 @@ async def open_account(user):
 
     with open("mainbank.json", "w") as f:
         json.dump(users,f)
+        await user.send("Bravo votre compte vient d'être enregistré avec succès !")
     return True
 
 @bot.command()

@@ -137,7 +137,7 @@ async def money(ctx):
     await ctx.send(embed = em)
 
 @bot.command()
-async def get_bank_data(ctx):
+async def get_bank_data():
     with open("mainbank.json", "r") as f:
         users = json.load(f)
 

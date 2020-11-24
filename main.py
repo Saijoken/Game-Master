@@ -5,6 +5,7 @@ import asyncio
 import json
 import random
 
+os.chdir('.')
 bot = commands.Bot(command_prefix = "!", description = "organise des combats") 
 token = str(os.environ.get('BOT_TOKEN'))
 bot.remove_command('help')

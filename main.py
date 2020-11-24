@@ -110,13 +110,13 @@ async def open_account(ctx):
         await ctx.send("Votre compte a déjà été créé !")
         return False
     else:
-        users[str(user.id)] = {}
-        users[str(user.id)]["monnaie"] = 0
-        users[str(user.id)]["banque"] = 0
+        users[str(ctx.author.id)] = {}
+        users[str(ctx.author.id)]["monnaie"] = 0
+        users[str(ctx.author.id)]["banque"] = 0
 
     with open("mainbank.json", "w") as f:
         json.dump(users,f)
-        await user.send("Bravo votre compte vient d'être enregistré avec succès !")
+        await ctx.send("Bravo votre compte vient d'être enregistré avec succès !")
     return True
 
 @bot.command()

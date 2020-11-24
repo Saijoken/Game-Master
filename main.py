@@ -103,11 +103,11 @@ async def clear(ctx, nombre : int):
 #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM
 
 @bot.command()
-async def open_account(user):
+async def open_account(ctx):
     users = await get_bank_data()
 
-    if str(user.id) in users:
-        await user.send("Votre compte a déjà été créé !")
+    if str(ctx.author.id) in users:
+        await ctx.send("Votre compte a déjà été créé !")
         return False
     else:
         users[str(user.id)] = {}

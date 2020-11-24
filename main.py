@@ -108,6 +108,7 @@ async def open_account(ctx):
 
     if str(ctx.author.id) in users:
         await ctx.send("Votre compte a déjà été créé !")
+        await ctx.send(users)
         return False
     else:
         users[str(ctx.author.id)] = {}
@@ -117,12 +118,13 @@ async def open_account(ctx):
     with open("mainbank.json", "w") as f:
         json.dump(users,f)
         await ctx.send("Bravo votre compte vient d'être enregistré avec succès !")
+        await ctx.send(users)
     return True
 
 @bot.command()
 async def money(ctx):
     user = ctx.author
-    await open_account(ctx.author)
+    await open_account(user)
     users = await get_bank_data()
 
     porte_monnaie = users[str(user.id)]["monnaie"]
@@ -135,7 +137,7 @@ async def money(ctx):
     await ctx.send(embed = em)
 
 @bot.command()
-async def get_bank_data():
+async def get_bank_data(ctx):
     with open("mainbank.json", "r") as f:
         users = json.load(f)
 

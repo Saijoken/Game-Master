@@ -105,15 +105,15 @@ async def clear(ctx, nombre : int):
 @bot.command()
 async def open_account(ctx):
     users = await get_bank_data()
-
-    if str(ctx.author.id) in users:
+    user = ctx.author
+    if str(user.id) in users:
         await ctx.send("Votre compte a déjà été créé !")
         await ctx.send(users)
         return False
     else:
-        users[str(ctx.author.id)] = {}
-        users[str(ctx.author.id)]["monnaie"] = 0
-        users[str(ctx.author.id)]["banque"] = 0
+        users[str(user.id)] = {}
+        users[str(user.id)]["monnaie"] = 0
+        users[str(user.id)]["banque"] = 0
 
     with open("mainbank.json", "w") as f:
         json.dump(users,f)

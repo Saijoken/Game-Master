@@ -7,7 +7,7 @@ import json
 import random
 
 os.chdir('.')
-token = 'Nzg0NDEwMDU4Njk1NjM5MDUw.X8o4yw.jlhEXQCHtfdl8UlSKwand_5k9cA'
+token = 'token'
 
 def get_prefix(client,message):
     with open("prefixe.json", "r") as f:

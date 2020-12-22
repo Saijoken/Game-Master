@@ -7,7 +7,12 @@ import json
 import random
 
 os.chdir('.')
-token = 'token'
+token = 'Nzg0NDEwMDU4Njk1NjM5MDUw.X8o4yw.qGY5g3vki0FiAiID6dXpMRQAfYE'
+
+def wrapper(ctx, emoji):
+		def check(reaction, user):
+			return user == ctx.author and str(reaction.emoji) == emoji1
+		return check
 
 def get_prefix(client,message):
     with open("prefixe.json", "r") as f:
@@ -277,8 +282,18 @@ async def remove_money(ctx, money : int, utilisateur: discord.User):
         await ctx.send("Cet utilisateur n'a pas de compte on dirait ... dites à cette personne de taper la commande open_account pour ouvrir un compte.")
         pass
         return False
-#COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT 
 
+@bot.command()
+async def get_stats():
+    """
+    Fonction pour chercher dans les données d'un utilisateur (utilisé pour la verification seulement)
+    """
+    with open("stats.json", "r") as f:
+        users = json.load(f)
+    return users
+
+
+#COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT 
 @bot.command()                                                                #FIGHT
 @commands.cooldown(1, 10, commands.BucketType.user)
 async def fight (ctx, adversaire: discord.User):
@@ -288,31 +303,58 @@ async def fight (ctx, adversaire: discord.User):
 	:param adversaire: L'utilisateur que vous allez affronter.
 	"""
 	await ctx.send("**C'est l'heure du combat !!! Choisissez le mode de combat (1, 2 ou 3):**\n\n**:one: Match Amicale :**\nAucun des personnages ne mourront le combat se termine lorsqu'il reste 5% des PV à l'un d'entre eux.\n\n**:two: DEATH MATCH :**\nCombattez pour votre vie JUSQU'A LA MORT !!!!! (Reset du personnage qui mourra lors du combat)\n\n**:three: Role Play :**\nUne option qui n'utilisera aucune fonctionnalité du bot a vous de jouez et de définir le gagnant à la fin du combat (vous êtes seuls juges du combat a vous deux de définir le perdant (soyez Fair Play ;) )")
-	while True:
-		user = ctx.author.id
-		channel = ctx.message.channel
-		# Début de l'aventure et réponse du joueur
-		try:
-			msg = await bot.wait_for('message', check=lambda message: message.author.id == user and message.channel == channel, timeout=20)
-			reponse = msg.content
-			if "1" == reponse :
-				message = await ctx.send("****")
-				reac = True
-				break
-			elif "2" == reponse :
-				await ctx.send(f"**Un grand combat commence aujourd'hui, une ambiance mortelle se crée aux alentours et une brise glaciale se fait sentir, un match à mort est prêt à debuter le lieu s'emplit peu à peu d'une aura meurtrière qui ne cesse de grandir mais qui gagnera ce combat .....**\n\n**Le combat opposera donc {ctx.author.mention} à {adversaire.mention} une page de l'histoire est en train de s'écrire aujourd'hui !**")
-				break
-			elif "3" == reponse :
-				await ctx.send("**Vous avez choisi le mode Role Play alors à vous de jouer**")
-				break
-			else:
-				await ctx.send("**:x:Réponse incorrect réessaye**")
-		except asyncio.TimeoutError:
-			await ctx.send("**Tu mets pas mal de temps ..., reviens une fois que tu te seras décidé ^^ !**")
-			break
+	user = ctx.author.id
+	channel = ctx.message.channel
+	# Début de l'aventure et réponse du joueur
+	try:
+		msg = await bot.wait_for('message', check=lambda message: message.author.id == user and message.channel == channel, timeout=20)
+		reponse = msg.content
+		if "1" == reponse :
+			message = await ctx.send(f"**Le combat opposant {ctx.author.mention} et {adversaire.mention}**")
+		elif "2" == reponse :
+			await ctx.send(f"**Un grand combat commence aujourd'hui, une ambiance mortelle se crée aux alentours et une brise glaciale se fait sentir, un match à mort est prêt à debuter le lieu s'emplit peu à peu d'une aura meurtrière qui ne cesse de grandir mais qui gagnera ce combat .....**\n\n**Le combat opposera donc {ctx.author.mention} à {adversaire.mention} une page de l'histoire est en train de s'écrire aujourd'hui !**")
+		elif "3" == reponse :
+			await ctx.send("**Vous avez choisi le mode Role Play alors à vous de jouer maintenant !!!**")
+		else:
+			await ctx.send("**:x: Réponse incorrect réessaye**")
+	except asyncio.TimeoutError:
+		await ctx.send("**Tu mets pas mal de temps ..., reviens une fois que tu te seras décidé ^^ !**")
+		return False
+
+@bot.command()
+async def get_fiche():
+    """
+    Fonction pour chercher dans les données d'un utilisateur (utilisé pour la verification seulement)
+    """
+    with open("fiche.json", "r") as f:
+        users = json.load(f)
+    return users
 
 @bot.command()
 async def ping(ctx):
 	await ctx.send(f':ping_pong: **Pong : {round(bot.latency * 1000)} ms**')
 
+@bot.command()
+async def fiche(ctx):
+	user = ctx.author
+	channel = ctx.channel
+	await ctx.send(f"**Bienvenue dans le créateur de fiche {ctx.author.mention} n'est-ce pas excitant !!!\nC'est ici que tu vas pouvoir donner vie à ton personnage mais réflechis bien car les changements seront définitifs sauf si vous effectuez le reset de votre personnage en reprenant l'aventure de ZERO.\nSi tu es prêt ALLONS-Y !!!**")
+	users = await get_fiche()
+	await ctx.send("**Pour commencer quel sera le prénom de ton personnage ?**")
+	emoji1 = '✅'
+	emoji2 = '❌'
+	try:
+		msg = await bot.wait_for('message', check=lambda message: message.author.id == user and message.channel == channel, timeout=30)
+		await ctx.send(msg.content)
+		await msg.add_reaction(emoji1)
+		await msg.add_reaction(emoji2)
+		try:
+			reaction, user = await bot.wait_for('reaction_add', timeout=None, check=wrapper(ctx, emoji))
+			users[str(user.id)] = {}
+			users[str(user.id)]["prenom"] = msg.content
+			await ctx.send("Bien maintenant le nom de ton personnage")
+		except asyncio.TimeoutError:
+			pass
+	except asyncio.TimeoutError:
+		pass
 bot.run(token)

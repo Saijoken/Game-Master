@@ -4,7 +4,6 @@ from discord.ext.commands.core import has_permissions
 from discord.utils import get
 from discord.ext.tasks import loop
 from discord import Embed
-import sqlite3
 import datetime
 import asyncio
 import time
@@ -12,6 +11,7 @@ import sys
 import yaml
 import random
 import string
+import pymysql
 from math import ceil
 
 class Counter(commands.Cog):
@@ -23,37 +23,35 @@ class Counter(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_channel_delete(self, channel):
-        await update_counter(channel.guild)
+        await self.update_counter(channel.guild)
 
     @commands.Cog.listener()
     async def on_guild_channel_create(self, channel):
-        await update_counter(channel.guild)
+        await self.update_counter(channel.guild)
 
     @commands.Cog.listener()
     async def on_guild_channel_update(self, before, after):
         async for entry in after.guild.audit_logs(limit=1, action=discord.AuditLogAction.channel_update):
             entry = entry 
         if entry.user != self.bot.user:
-            await update_counter(after.guild)
+            await self.update_counter(after.guild)
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        await update_counter(member.guild)
+        await self.update_counter(member.guild)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        await update_counter(member.guild)
+        await self.update_counter(member.guild)
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        await update_counter(after.guild)
-    connection = sqlite3.connect("bdd.db")
-    cursor = connection.cursor()
+        await self.update_counter(after.guild)
 
     @commands.command()
     async def debug(self, ctx):
         if ctx.message.author.guild_permissions.administrator:
-            await update_counter(ctx.guild)
+            await self.update_counter(ctx.guild)
             await ctx.send(":white_check_mark: Compteurs mis à jour")
         else:
             await ctx.send(":x:")
@@ -63,8 +61,8 @@ class Counter(commands.Cog):
         if ctx.message.author.guild_permissions.administrator:
             # Créer / Supprimer / Liste
             await ctx.send(":one: Veuillez envoyer l'action que vous voulez faire (**créer** un nouveau compteur, **supprimer** un compteur existant ou avoir la **liste** des compteurs existants) :")
-            connection = sqlite3.connect("bdd.db")
-            cursor = connection.cursor()
+            db = pymysql.connect(host="bdd.adkynet.com",user="u1889_VVwthiDN1f",passwd="hhN^VKflvso+SH+opQDSpXVj", db="s1889_bdd")
+            cursor = db.cursor()
             while True:
                 user = ctx.author.id
                 channel = ctx.message.channel
@@ -92,8 +90,8 @@ class Counter(commands.Cog):
                 except asyncio.TimeoutError():
                     await ctx.send("Vous avez mis trop de temps à répondre, création annulée...")
                     return
-            check = cursor.execute(f"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{ctx.guild.id}_counters'")
-            check = int(check.fetchone()[0])
+            cursor.execute(f"SELECT count(*) FROM information_schema.TABLES t WHERE t.TABLE_NAME = '{ctx.guild.id}_counters'")
+            check = int(cursor.fetchone()[0])
             if check == 0:
                 cursor.execute(f"CREATE TABLE '{ctx.guild.id}_counters' (type INTEGER, channel_name TEXT, channel_id INTEGER, role_id INTEGER)")
                 connection.commit()
@@ -194,18 +192,18 @@ class Counter(commands.Cog):
                 else:
                     cursor.execute(f'''INSERT INTO '{ctx.guild.id}_counters' (type, channel_name, channel_id) VALUES ({counter_type}, "{channel_name}", {channel.id}) ''')
                     connection.commit()
-                await update_counter(ctx.guild)
+                await self.update_counter(ctx.guild)
                 await ctx.send(":white_check_mark: Compteur créé (vous pouvez le déplacer dans la catégorie de votre choix !")
                 return
             #-----SUPPRIMER-----#
             elif action == 1:
-                check = cursor.execute(f"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{ctx.guild.id}_counters'")
-                check = int(check.fetchone()[0])
+                cursor.execute(f"SELECT count(*) FROM information_schema.TABLES t WHERE t.TABLE_NAME = '{ctx.guild.id}_counters'")
+                check = int(cursor.fetchone()[0])
                 if check == 0:
                     await ctx.send(":x: Il n'y a aucun compteur sur ce serveur")
                     return
-                counters = cursor.execute(f"SELECT channel_id FROM '{ctx.guild.id}_counters'")
-                counters = counters.fetchall()
+                cursor.execute(f"SELECT channel_id FROM '{ctx.guild.id}_counters'")
+                counters = cursor.fetchall()
                 counters = [item for t in counters for item in t]
                 # ID du compteur
                 await ctx.send(":two: Veuillez envoyer l'**ID** du compteur (visible dans la liste)")
@@ -229,25 +227,25 @@ class Counter(commands.Cog):
                     except asyncio.TimeoutError():
                         await ctx.send("Vous avez mis trop de temps à répondre, création annulée...")
                         return
-                channel_name = cursor.execute(f"SELECT channel_name FROM '{ctx.guild.id}_counters' WHERE channel_id={channel_id}")
-                channel_name = channel_name.fetchone()[0]
-                cursor.execute(f"DELETE FROM '{ctx.guild.id}_counters' WHERE channel_id={channel_id}")
+                cursor.execute(f"SELECT channel_name FROM '{ctx.guild.id}_counters' WHERE type='table' channel_id={channel_id}")
+                channel_name = cursor.fetchone()[0]
+                cursor.execute(f"DELETE FROM '{ctx.guild.id}_counters' WHERE type='table' channel_id={channel_id}")
                 connection.commit()
                 channel = discord.utils.get(ctx.guild.voice_channels, id=channel_id)
                 await channel.delete()
                 await ctx.send(f":white_check_mark: Le salon **{channel_name}** (compteur n°**{counter_id}**) a été supprimé !")
-                await update_counter(ctx.guild)
+                await self.update_counter(ctx.guild)
                 return
             #-----LISTE-----#
             elif action == 2:
-                check = cursor.execute(f"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{ctx.guild.id}_counters'")
-                check = int(check.fetchone()[0])
+                cursor.execute(f"SELECT count(*) FROM information_schema.TABLES t WHERE t.TABLE_NAME = '{ctx.guild.id}_counters'")
+                check = int(cursor.fetchone()[0])
                 if check == 0:
                     await ctx.send(":x: Il n'y a aucun compteur sur ce serveur")
                     return
 
-                counters = cursor.execute(f"SELECT type, channel_name FROM '{ctx.guild.id}_counters'")
-                counters = counters.fetchall()
+                cursor.execute(f"SELECT type, channel_name FROM '{ctx.guild.id}_counters'")
+                counters = cursor.fetchall()
                 counters = [item for t in counters for item in t]
                 i = 0
                 final_send = []
@@ -268,14 +266,14 @@ class Counter(commands.Cog):
                 final_send = ''.join(final_send)
                 await ctx.send(final_send)
 
-
-
-    async def update_counter(self, guild: discord.guild.Guild):
-        check = cursor.execute(f"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{guild.id}_counters'")
-        check = int(check.fetchone()[0])
+    async def update_counter(self, ctx, guild: discord.guild.Guild):
+        db = pymysql.connect(host="bdd.adkynet.com",user="u1889_VVwthiDN1f",passwd="hhN^VKflvso+SH+opQDSpXVj", db="s1889_bdd")
+        cursor = db.cursor()
+        cursor.execute(f"SELECT count(*) FROM information_schema.TABLES t WHERE t.TABLE_NAME = '{ctx.guild.id}_counters'")
+        check = int(cursor.fetchone()[0])
         if check != 0:
-            counters = cursor.execute(f"SELECT type, channel_name, channel_id FROM '{guild.id}_counters'")
-            counters = counters.fetchall()
+            cursor.execute(f"SELECT type, channel_name, channel_id FROM '{guild.id}_counters'")
+            counters = cursor.fetchall()
             counters = [item for t in counters for item in t]
             i = 0
             for e in range(ceil(len(counters)/3)):
@@ -286,21 +284,21 @@ class Counter(commands.Cog):
                         if not member.bot:
                             members_list.append(member)
                     channel = discord.utils.get(guild.voice_channels, id=int(counters[i+2]))
-                    name = f"{counters[i+1]} {len(members_list)}"
-                    if channel.name != name:
-                        await channel.edit(name=name)
+                    nom = f"{counters[i+1]} {len(members_list)}"
+                    if channel.name != nom:
+                        await channel.edit(name=nom)
                 elif counter_type == 2:
                     bot_list = []
                     for member in guild.members:
                         if member.bot:
                             bot_list.append(member)
                     channel = discord.utils.get(guild.voice_channels, id=int(counters[i+2]))
-                    name = f"{counters[i+1]} {len(bot_list)}"
-                    if channel.name != name:
-                        await channel.edit(name=name)
+                    nom = f"{counters[i+1]} {len(bot_list)}"
+                    if channel.name != nom:
+                        await channel.edit(name=nom)
                 elif counter_type == 3:
-                    role_id = cursor.execute(f"SELECT role_id FROM '{guild.id}_counters' WHERE channel_id={counters[i+2]}")
-                    role_id = int(role_id.fetchone()[0])
+                    cursor.execute(f"SELECT role_id FROM '{guild.id}_counters' WHERE channel_id={counters[i+2]}")
+                    role_id = int(cursor.fetchone()[0])
                     role = discord.utils.get(guild.roles, id=role_id)
                     role_list = []
                     for member in guild.members:
@@ -308,15 +306,15 @@ class Counter(commands.Cog):
                             role_list.append(member)
                     role_list = len(role_list)
                     channel = discord.utils.get(guild.voice_channels, id=int(counters[i+2]))
-                    name = f"{counters[i+1]} {role_list}"
-                    if channel.name != name:
-                        await channel.edit(name=name)
+                    nom = f"{counters[i+1]} {role_list}"
+                    if channel.name != nom:
+                        await channel.edit(name=nom)
                 elif counter_type == 4:
                     channel = discord.utils.get(guild.voice_channels, id=int(counters[i+2]))
                     list_channels = len(guild.channels)
-                    name = f"{counters[i+1]} {list_channels}"
-                    if channel.name != name:
-                        await channel.edit(name=name)
+                    nom = f"{counters[i+1]} {list_channels}"
+                    if channel.name != nom:
+                        await channel.edit(name=nom)
                 i += 3
 
 def setup(bot):

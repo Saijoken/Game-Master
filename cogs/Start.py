@@ -11,7 +11,7 @@ class Start(commands.Cog):
 	@commands.Cog.listener()
 	async def on_ready(self):
 		pass
-
+	
 	def wrapper(self, ctx, emoji):
 		def check(self, reaction, user):
 			return user == ctx.author and str(reaction.emoji) == emoji
@@ -48,7 +48,7 @@ class Start(commands.Cog):
 			emoji = '📩'
 			await message.add_reaction(emoji)
 			try:
-				reaction, user = await self.bot.wait_for('reaction_add', timeout=25.0, check=wrapper(self, ctx, emoji))
+				reaction, user = await self.bot.wait_for('reaction_add', timeout=25.0, check= self.wrapper(ctx, emoji))
 			except asyncio.TimeoutError:
 				await ctx.send("**Tu mets pas mal de temps ..., reviens une fois que tu te seras décidé ^^ !**")
 			else:
@@ -63,7 +63,7 @@ class Start(commands.Cog):
 				emoji = '🔒'
 				await message.add_reaction(emoji)
 				try:
-					reaction, user = await self.bot.wait_for('reaction_add', timeout=None, check=wrapper(self, ctx, emoji))
+					reaction, user = await self.bot.wait_for('reaction_add', timeout=None, check= self.wrapper(ctx, emoji))
 				except asyncio.TimeoutError:
 					pass
 				else:

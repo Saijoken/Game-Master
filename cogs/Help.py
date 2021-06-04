@@ -25,6 +25,7 @@ class Help(commands.Cog):
 			em.add_field(name = "**Commandes d'Aventure**", value = "Si tu viens de mettre les pieds dans ce monde et tu souhaites te repérer un peu.", inline = False)
 			em.add_field(name = "**Commandes de Modérations (Réservé au Staff)**", value = "Commandes utiles aux modérateurs pour modérer les messages et les utilisateurs", inline = False)
 			em.add_field(name = "**Commandes d'Economie**", value = "Les commandes servant a utiliser (ou gérer pour le Staff) l'argent et le Shop des utilisateurs.", inline = False)
+			em.set_footer(text="En maintenance ne pas utiliser les commandes !!!")
 
 		elif arg == "Moderation" or arg == "Modération" or arg == "moderation" or arg == "modération":
 			em = discord.Embed(title = "Commandes de Modérations", description = "Voici les différentes commandes de modérations disponibles sur le bot :", color = discord.Color.from_rgb(232, 18, 36), inline = False)
@@ -32,6 +33,7 @@ class Help(commands.Cog):
 			em.add_field(name = "**Kick :**", value = "Commande pour Expulser un utilisateur du serveur (il peut toutefois etre réinvité au serveur contrairement au ban)", inline = False)
 			em.add_field(name = "**Clear :**", value = "Commande pour supprimer un certain nombre de derniers messages dans un channel spécifique par exemple: (!clear 10 supprimera les 10 derniers messages du channel)", inline = False)
 			em.add_field(name = "**Unban :**", value = "Commande pour supprimer un utilisateur de la liste de ban du serveur pour qu'il puisse être réinvité.", inline = False)
+			em.set_footer(text="En maintenance ne pas utiliser les commandes !!!")
 
 		elif arg == "Economy" or arg == "Economie" or arg == "économie" or arg == "economie":
 			em = discord.Embed(title = "Commandes d'Economie", description = "Voici les commandes d'Economie elles vous serviront a gérer votre porte monnaie et accéder à la boutique par exemple", color = discord.Color.from_rgb(232, 18, 36), inline = False)
@@ -42,6 +44,7 @@ class Help(commands.Cog):
 			em.add_field(name = "**Items :**", value = "Commande pour voir tout les objets que vous avez dans votre inventaire leurs quantités et leurs valeurs", inline = False)
 			em.add_field(name = "**Add_Money :**", value = "Commande réservé aux administrateurs permettant de donner une certaine somme d'argent à un joueur", inline = False)
 			em.add_field(name = "**Remove_Money :**", value = "Commande réservé aux administrateurs permettant de prendre une certaine somme d'argent à un joueur.", inline = False)
+			em.set_footer(text="En maintenance ne pas utiliser les commandes !!!")
 
 		elif arg == "Aventure" or arg == "aventure" or arg == "Adventure" or arg == "adventure":
 			em = discord.Embed(title = "Commandes d'Aventure", description = "Tu viens de commencer ton aventure et tu souhaites decouvrir des commandes qui t'aideront a mieux vivre ton RP alors tu es au bon endroit", color = discord.Color.from_rgb(232, 18, 36), inline = False)
@@ -51,6 +54,7 @@ class Help(commands.Cog):
 			em.add_field(name = "**Train :**", value = "Commande pour entrainer son personnage et amélioré ces statistiques de combat", inline = False)
 			em.add_field(name = "**Fight @Adversaire :**", value = "Commande pour combattre un adversaire avec système de sélection des attaques et actions avec utlisations d'item (style jeu vidéo)", inline = False)
 			em.add_field(name = "**Statistiques (ou stats) :**", value = "Commande pour afficher les statistiques du personnage montrant le nombre d'entrainements restants par jour etc etc...", inline = False)
+			em.set_footer(text="En maintenance ne pas utiliser les commandes !!!")
 		else:
 			await ctx.send("**:x: Cela ne correspond pas a une catégorie disponible.**")
 		await ctx.send(embed = em)

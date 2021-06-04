@@ -1,13 +1,19 @@
+## J'arrive bientôt 
+# By Runger le bg
+# Noice ca (by Senku)
+# add des commandes de fun 
 import os
 import discord
 from typing import Optional
 from discord.ext import commands
+from discord import File
+from PIL import Image, ImageSequence
 import asyncio
 import json
 import random
 
 os.chdir('.')
-token = 'token'
+token = 'Nzg0NDEwMDU4Njk1NjM5MDUw.X8o4yw.LNo12Y9M55iL9we3GIkhxgENd5A'
 
 def wrapper(ctx, emoji):
 		def check(reaction, user):
@@ -25,7 +31,7 @@ bot.remove_command('help')
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType.watching, name='des gens combattre 😎'))
+    await bot.change_presence(status=discord.Status.idle, activity=discord.Activity(type=discord.ActivityType.watching, name='la maintenance '))
     print("Bot connecté")
 
 @bot.command
@@ -45,7 +51,7 @@ async def on_guild_join(guild):
     with open("prefixe.json", "r") as f:
         prefixe = json.load(f)
     
-    prefixe[str(guild.id)] = "!"
+    prefixe[str(guild.id)] = "!!"
     
     with open("prefixe.json", "w") as f:
         json.dump(prefixe,f, indent=4)
@@ -55,32 +61,34 @@ async def on_guild_remove(guild):
     with open('prefixe.json', 'r') as f:
         prefixe = json.load(f)
    	
-    prefixe[str(guild.id)] = '!'
+    prefixe[str(guild.id)] = '!!'
     
     with open('prefixe.json', 'w') as f:
         json.dump(prefixe, f, indent=4)
         
 @bot.command()
 async def prefix(ctx, prefix):
-    
-    with open("prefixe.json", "r") as f:
-        prefixe = json.load(f)
-    
-    prefixe[str(ctx.guild.id)] = prefix
-    await ctx.send("Le préfixe a été changé pour " + prefix)
+    if ctx.message.author.guild_permissions.administrator:
+        with open("prefixe.json", "r") as f:
+            prefixe = json.load(f)
 
-    with open("prefixe.json", "w") as f:
-        json.dump(prefixe,f, indent=4)
+        prefixe[str(ctx.guild.id)] = prefix
+        await ctx.send("Le préfixe a été changé pour " + prefix)
+
+        with open("prefixe.json", "w") as f:
+            json.dump(prefixe,f, indent=4)
+    else:
+        await ctx.send("**:x: Tu n'as pas les droits d'administrateur pour changer le prefixe du bot dans ce serveur.**")
 
 @bot.command()                                                                                                          #SAY
-async def say(ctx, *, arg):
+async def say(ctx, *, arg: commands.clean_content):
     """
     Fonction pour faire parler le bot en reproduisant ce qui est tapé précédemment
     :param ctx: le contexte de la commande.
     :param *, arg: Le texte a renvoyé avec espaces.
     """
     await ctx.message.delete()
-    await ctx.send(arg)
+    await ctx.send(ctx.author.mention + "\n" + arg)
 
 #COMMANDES DE MODERATIONS #COMMANDES DE MODERATIONS #COMMANDES DE MODERATIONS #COMMANDES DE MODERATIONS #COMMANDES DE MODERATIONS #COMMANDES DE MODERATIONS #COMMANDES DE MODERATIONS
 
@@ -93,9 +101,9 @@ async def kick(ctx, user : discord.User):
     """
     if ctx.message.author.guild_permissions.administrator:
         await ctx.guild.kick(user)
-        await ctx.send(f"{user} vient d'etre kick !")
+        await ctx.send(f"{user} vient d'être kick du serveur !")
     else:
-        await ctx.send("Tu n'as pas les droits d'administrateurs !")
+        await ctx.send("Tu n'as pas les droits d'administrateurs pour kick cet utilisateur du serveur !")
 
 @bot.command()                                                                                                          #BAN
 async def ban(ctx, user:discord.User):
@@ -105,9 +113,9 @@ async def ban(ctx, user:discord.User):
     :param user: L'utilisateur qui va etre ban.
     """
     if ctx.message.author.guild_permissions.administrator:
-        await ctx.send(f"{user} vient d'être banni ! Il a surement fait quelque chose de mal c'est triste :pensive:")
+        await ctx.send(f"**{user} vient d'être banni ! Il a sûrement fait quelque chose de mal c'est triste :pensive:**")
     else :
-        await ctx.send("Tu n'as pas les droits d'administrateurs !")
+        await ctx.send("Tu n'as pas les droits d'administrateurs pour bannir cet utilisateur !")
 
 @bot.command()
 async def unban(ctx, user):
@@ -126,10 +134,6 @@ async def unban(ctx, user):
 	#Ici on sait que l'utilisateur na pas ete trouvé
 	await ctx.send(f"L'utilisateur {user} n'est pas dans la liste des bans")
     """
-@bot.command()
-async def mplessansfichesaproposdunsujet(ctx):
-	if ctx.author==ctx.guild.owner:
-		await ctx.send("Ok c bav tu es le maitre supreme bg :person_bowing: ")
 
 @bot.command()                                                                                                          #CLEAR
 async def clear(ctx, nombre : int):
@@ -141,8 +145,55 @@ async def clear(ctx, nombre : int):
     messages = await ctx.channel.history(limit = nombre + 1).flatten()
     for message in messages:
         await message.delete()
+        
+# Commandes de mute ajoutées par Runger, modifiez e à votre guise :)
+# RUNGER COPYRIGHT DON'T COPY THIS CODE OR I'LL TAPER YOU VREMANT TRE FOR (from Senku)
+@bot.command()
+async def createMutedRole(ctx):
+    mutedRole = await ctx.guild.create_role(name = "Muted",
+                                            permissions = discord.Permissions(
+                                                send_messages = False,
+                                                speak = False),
+                                            reason = "Création du role Muted pour mute des gens. :tripledab:")
+    for channel in ctx.guild.channels:
+        await channel.set_permissions(mutedRole, send_messages = False, speak = False)
+    return mutedRole
 
-#COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM
+async def getMutedRole(ctx):
+    roles = ctx.guild.roles
+    for role in roles:
+        if role.name == "Muted":
+            return role
+    
+    return await createMutedRole(ctx)
+
+
+@bot.command()
+@commands.has_permissions(manage_channels = True)
+async def mute(ctx, member : discord.Member, *, reason = "Aucune raison n'a été renseignée."):
+
+    mutedRole = await getMutedRole(ctx)
+    await member.add_roles(mutedRole, reason = reason)
+    embed = discord.Embed(title = "**MUTE**", description = f"{member.mention} vient d'être mute.")
+    embed.set_author(name = ctx.author.name, icon_url = ctx.author.avatar_url)
+    await ctx.send(embed = embed)
+
+
+
+
+@bot.command()
+@commands.has_permissions(manage_channels = True)
+async def unmute(ctx, member : discord.Member, *, reason = "Aucune raison n'a été renseigné"):
+    mutedRole = await getMutedRole(ctx)
+    await member.remove_roles(mutedRole, reason = reason)
+    embed = discord.Embed(title = "**UNMUTE**", description = f"{member.mention} vient d'être unmute.")
+    embed.set_author(name = ctx.author.name, icon_url = ctx.author.avatar_url)
+    await ctx.send(embed = embed)
+
+
+
+
+#COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM #COMMANDES SHOP ET ITEM 
 
 @bot.command()
 async def open_account(ctx):
@@ -165,7 +216,6 @@ async def open_account(ctx):
     await ctx.send("Bravo votre compte vient d'être enregistré avec succès !")
     return True
 
-@bot.command()
 async def opened_account(ctx):
     """
     Fonction presque identique a celle au dessus mais réutilisé pour la verification uniquement
@@ -216,7 +266,6 @@ async def money(ctx, Utilisateur: Optional[discord.User]):
          pass
     return False
 
-@bot.command()
 async def get_bank_data():
     """
     Fonction pour chercher dans les données d'un utilisateur (utilisé pour la verification seulement)
@@ -283,7 +332,6 @@ async def remove_money(ctx, money : int, utilisateur: discord.User):
         pass
         return False
 
-@bot.command()
 async def get_stats():
     """
     Fonction pour chercher dans les données d'un utilisateur (utilisé pour la verification seulement)
@@ -291,10 +339,38 @@ async def get_stats():
     with open("stats.json", "r") as f:
         users = json.load(f)
     return users
+#TEST IMAGE
 
+#TEST IMAGE
 
-#COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT #COMMANDES DE FIGHT 
-@bot.command()                                                                #FIGHT
+#TEST IMAGE
+
+#TEST IMAGE
+
+#TEST IMAGE
+@bot.command()
+async def testimage(ctx):
+    transparent_foreground = Image.open('Steella.png')
+    animated_gif = Image.open('Versuscreen.gif')
+
+    frames = []
+    for frame in ImageSequence.Iterator(animated_gif):
+        frame = frame.copy()
+        frame.paste(transparent_foreground, mask=transparent_foreground)
+        frames.append(frame)
+    frames[0].save('output.gif', save_all=True, append_images=frames[1:])
+    await ctx.send(file=File('./output.gif'))
+
+#COMMANDES DE FIGHT 
+
+#COMMANDES DE FIGHT 
+
+#COMMANDES DE FIGHT 
+
+#COMMANDES DE FIGHT 
+
+#COMMANDES DE FIGHT  
+@bot.command()                                                                
 @commands.cooldown(1, 10, commands.BucketType.user)
 async def fight (ctx, adversaire: discord.User):
 	"""
@@ -336,25 +412,157 @@ async def ping(ctx):
 
 @bot.command()
 async def fiche(ctx):
-	user = ctx.author
-	channel = ctx.channel
 	await ctx.send(f"**Bienvenue dans le créateur de fiche {ctx.author.mention} n'est-ce pas excitant !!!\nC'est ici que tu vas pouvoir donner vie à ton personnage mais réflechis bien car les changements seront définitifs sauf si vous effectuez le reset de votre personnage en reprenant l'aventure de ZERO.\nSi tu es prêt ALLONS-Y !!!**")
 	users = await get_fiche()
 	await ctx.send("**Pour commencer quel sera le prénom de ton personnage ?**")
-	emoji1 = '✅'
-	emoji2 = '❌'
+	def check(m):
+		return m.author == ctx.author and m.channel == ctx.channel
 	try:
-		msg = await bot.wait_for('message', check=lambda message: message.author.id == user and message.channel == channel, timeout=30)
-		await ctx.send(msg.content)
-		await msg.add_reaction(emoji1)
-		await msg.add_reaction(emoji2)
-		try:
-			reaction, user = await bot.wait_for('reaction_add', timeout=None, check=wrapper(ctx, emoji))
-			users[str(user.id)] = {}
-			users[str(user.id)]["prenom"] = msg.content
-			await ctx.send("Bien maintenant le nom de ton personnage")
-		except asyncio.TimeoutError:
-			pass
+		msg = await bot.wait_for('message', check = check, timeout=None)
 	except asyncio.TimeoutError:
-		pass
+		await ctx.send("**Tu as mis un peu de trop de temps à répondre revient plus tard**")
+		return
+	prenomperso = msg.content                                                                                #await ctx.send(msg.attachments[0].url)
+	users[str(ctx.author.id)] = {}
+	users[str(ctx.author.id)]["prenom"] = prenomperso
+	await ctx.send("**Quel sera son nom de famille ?**")
+	def check(m):
+		return m.author == ctx.author and m.channel == ctx.channel
+	try:
+		msg = await bot.wait_for('message', check = check, timeout=None)
+	except asyncio.TimeoutError:
+		await ctx.send("**Tu as mis un peu de trop de temps à répondre revient plus tard**")
+		return
+	nomperso = msg.content                                                                                #await ctx.send(msg.attachments[0].url)
+	users[str(ctx.author.id)]["nom"] = nomperso
+	await ctx.send("**Pour mieux voir les choses donne moi une image du visage de ton personnage (de face si possible).**")
+	def check(m):
+		return m.author == ctx.author and m.channel == ctx.channel
+	try:
+		msg = await bot.wait_for('message', check = check, timeout=None)
+	except asyncio.TimeoutError:
+		await ctx.send("**Tu as mis un peu de trop de temps à répondre revient plus tard**")
+		return
+	if msg.content == None:
+		users[str(ctx.author.id)]["visage"] = msg.attachments[0].url
+	elif msg.content.startswith('https://media.discordapp.net/attachments/'):
+		users[str(ctx.author.id)]["visage"] = msg.content
+	else:
+		await ctx.send("**:x: Réessaye ce n'est pas une image ou un url valide**")
+	with open("fiche.json", "w") as f:
+		json.dump(users,f)
+
+#EMBED              
+        
+#EMBED
+
+#EMBED      
+        
+#EMBED              
+        
+#EMBED              
+        
+#EMBED              
+@bot.command()
+async def em(ctx):
+    await ctx.send("Dans quel salon voulez vous que j'envoie l'embed ? (Spécifiez le avec #)") 
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+    try:
+        msg1 = await bot.wait_for('message', check = check, timeout=30.0)
+
+        channel_converter = discord.ext.commands.TextChannelConverter()
+        try:
+            channel = await channel_converter.convert(ctx, msg1.content)
+        except commands.BadArgument:
+            return await ctx.send(embed=discord.Embed(color=discord.Color.red(), description = "Ce salon n'existe pas ! Veuillez retenter la commande !")) 
+
+    except asyncio.TimeoutError:
+        await ctx.send("Trop lent ! Veuillez retentez la commande !") 
+    if not channel.permissions_for(ctx.guild.me).send_messages or  not channel.permissions_for(ctx.guild.me).add_reactions:
+        return await ctx.send(embed=discord.Embed(color=discord.Color.red(), description = f"Je n'ai pas le droit d'envoyer de message sur le salon programmé : {channel}")) 
+
+    
+    await ctx.send(f"Très bien ! L'embed sera envoyé dans le salon : {channel.mention} !\nQuel sera le **titre** de l'embed?")
+
+    def checkMessage(message):
+        return message.author == ctx.message.author and ctx.message.channel == message.channel
+
+    try:
+        titre = await bot.wait_for("message", timeout = 60, check = checkMessage)
+    except:
+        await ctx.send(":x: Veuillez retentez la commande.")
+        return
+    message = await ctx.send(f"Voici le titre : **{titre.content}**\nQuel est sa **description** ?")
+    def checkMessage(message):
+        return message.author == ctx.message.author and ctx.message.channel == message.channel
+
+    try:
+        recette = await bot.wait_for("message", timeout = 60, check = checkMessage)
+    except:
+        await ctx.send(":x: Veuillez retentez la commande.")
+        return
+    await ctx.send("Voulez-vous prévoir une autre description ? (Tapez O ou N)")
+    message = await bot.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel)
+    answer = message.content
+    while answer != str('O') and answer != str('N'):
+        message = await bot.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel)
+        answer = message.content
+    
+    if answer.startswith('O'):
+        message = await ctx.send(f"Veuillez tapez le titre de la seconde description !")
+        def checkMessage(message):
+            return message.author == ctx.message.author and ctx.message.channel == message.channel
+
+        try:
+            field = await bot.wait_for("message", timeout = 60, check = checkMessage)
+        except:
+            await ctx.send(":x: Veuillez retentez la commande.")
+            return
+        message = await ctx.send(f"{field.content} sera donc son titre ! Quelle sera sa description ?")
+        def checkMessage(message):
+            return message.author == ctx.message.author and ctx.message.channel == message.channel
+
+        try:
+            fieldes = await bot.wait_for("message", timeout = 60, check = checkMessage)
+        except:
+            await ctx.send(":x: Veuillez retentez la commande.")
+            return
+        message = await ctx.send(f"Très bien ! Voici donc sa description : **{fieldes.content}**\nQuel est son **pied de page** ?")
+        def checkMessage(message):
+            return message.author == ctx.message.author and ctx.message.channel == message.channel
+
+        try:
+            footer = await bot.wait_for("message", timeout = 60, check = checkMessage)
+        except:
+            await ctx.send(":x: Veuillez retentez la commande.")
+            return
+
+
+        await ctx.send("L'embed a été envoyé au salon programmé !", delete_after = 2)
+        embed = discord.Embed(color=discord.Color.red(), title=f"{titre.content}", description=f"{recette.content}")
+        embed.add_field(name= f"{field.content}", value=f"{fieldes.content}")
+        embed.set_footer(text=f"{footer.content}")  
+        await channel.send(embed=embed)
+
+    if answer.startswith('N'):
+        message = await ctx.send(f"Très bien ! Voici donc sa description : **{titre.content}**\nQuel est son **pied de page** ?")
+        def checkMessage(message):
+            return message.author == ctx.message.author and ctx.message.channel == message.channel
+
+        try:
+            footer = await bot.wait_for("message", timeout = 60, check = checkMessage)
+        except:
+            await ctx.send(":x: Veuillez retentez la commande.")
+            return
+
+        await ctx.send("L'embed a été envoyé au salon programmé !", delete_after = 2)
+        embed = discord.Embed(color=discord.Color.red(), title=f"{titre.content}", description=f"{recette.content}")
+        embed.set_footer(text=f"{footer.content}")  
+        await channel.send(embed=embed)
+
+@bot.command()
+async def pp(ctx):
+	await ctx.send(ctx.author.avatar_url)
+
 bot.run(token)

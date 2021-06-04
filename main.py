@@ -13,7 +13,7 @@ import json
 import random
 
 os.chdir('.')
-token = 'Nzg0NDEwMDU4Njk1NjM5MDUw.X8o4yw.LNo12Y9M55iL9we3GIkhxgENd5A'
+token = 'the token'
 
 def wrapper(ctx, emoji):
 		def check(reaction, user):
